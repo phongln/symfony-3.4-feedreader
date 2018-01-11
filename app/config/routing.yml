@@ -1,0 +1,8 @@
+feeds_reader:
+    resource: "@FeedsReaderBundle/Controller/"
+    type:     annotation
+    prefix:   /feeds-reader
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation

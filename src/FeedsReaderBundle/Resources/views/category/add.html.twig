@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="col-lg-3">
+        <h1 class="my-4">Feeds Categories</h1>
+        <div class="list-group">
+            {%  if categories %}
+                <a href="{{ path('view-category')}}" class="list-group-item">All categories</a>
+                {% for category in categories %}
+                    <a href="{{ path('view-category', {'id': category.id}) }}" class="list-group-item">{{ category.title|e }}</a>
+                {% endfor %}
+            {%  else %}
+                <span class="text-info">No Feed Category existed</span>
+            {%  endif %}
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Add New Category</h3>
+                {{ form_start(form) }}
+                {{ form_errors(form) }}
+                <div class="form-group">
+                    {{ form_errors(form.feedCategory) }}
+                    {{ form_widget(form.feedCategory, {'attr': {'class': 'form-control'}}) }}
+                    <small class="form-text text-muted">Use commas for multiple feeds subscrition.<br />
+                        Ex. http://www.feedforall.com/sample-feed.xml, http://www.feedforall.com/sample.xml</small>
+
+                </div>
+
+                {{ form_widget(form.add, {'attr': {'class': 'btn btn-outline-info'}}) }}
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-9 -->
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}

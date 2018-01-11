@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="col-lg-3">
+        <h1 class="my-4">Feeds Categories</h1>
+        <div class="list-group">
+            {%  if categories %}
+                <a href="{{ path('view-category')}}" class="list-group-item {%  if selectedId is null %} active {% endif %}">All categories</a>
+                {% for category in categories %}
+                    <a href="{{ path('view-category', {'id': category.id}) }}" class="list-group-item {%  if selectedId == category.id  %} active {% endif %}">{{ category.title|e }}</a>
+                {% endfor %}
+            {%  else %}
+                <span class="text-info">No Feed Category existed</span>
+            {%  endif %}
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">{% if isAdd %} Add New {% else %} Edit {% endif %} Feed</h3>
+                {{ form_start(form) }}
+                {{ form_errors(form) }}
+                <div class="form-group">
+                    <label>Title</label>
+                    {{ form_errors(form.title) }}
+                    {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    {{ form_errors(form.description) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows' : '8'}}) }}
+                </div>
+                <div class="form-group">
+                    <label>Link</label>
+                    {{ form_errors(form.link) }}
+                    {{ form_widget(form.link, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    {{ form_errors(form.category) }}
+                    {{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="form-group">
+                    <label>Publish Date</label>
+                    {{ form_errors(form.publishDate) }}
+                    {{ form_widget(form.publishDate, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                {{ form_widget(form.save, {'attr': {'class': 'btn btn-outline-info'}}) }}
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-9 -->
+{% endblock %}
+
+{% block javascripts %}
+    $(function () {
+        $('.publishDateTimePicker').datetimepicker();
+    });
+{% endblock %}

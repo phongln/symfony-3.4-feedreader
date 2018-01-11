@@ -1,0 +1,12 @@
+parameters:
+    feeds_reader.category.handler.class: FeedsReaderBundle\Handler\CategoryHandler
+    feeds_reader.feed.handler.class: FeedsReaderBundle\Handler\FeedHandler
+services:
+  feeds_reader.category.handler:
+    class: %feeds_reader.category.handler.class%
+    arguments:
+      - '@doctrine.orm.entity_manager'
+  feeds_reader.feed.handler:
+    class: %feeds_reader.feed.handler.class%
+    arguments:
+      - '@doctrine.orm.entity_manager'

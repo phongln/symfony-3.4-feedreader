@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="col-lg-3">
+        <h1 class="my-4">
+            Feeds Categories
+            <br>
+            {% if selectedId %}
+                <form action="{{ path('delete-category', {'id': selectedId}) }}" method="post" id="deleteCategoryForm">
+                    <input type="hidden" name="token" value="{{ csrf_token('delete-category') }}" />
+                    <button type="button" class="btn btn-outline-danger" id="deleteCategoryBtn">Delete Category</button>
+                </form>
+            {%  endif %}
+        </h1>
+        <div class="list-group">
+            {%  if categories %}
+                <a href="{{ path('view-category')}}" class="list-group-item {%  if selectedId is null %} active {% endif %}">All categories</a>
+                {% for id,title in categories %}
+                    <a href="{{ path('view-category', {'id': id}) }}" class="list-group-item {%  if selectedId == id  %} active {% endif %}">{{ title|e }}</a>
+                {% endfor %}
+            {%  else %}
+                <span class="text-info">No Feed Category existed</span>
+            {%  endif %}
+        </div>
+    </div>
+    <div class="col-lg-9">
+        {% for flash_message in app.session.flashBag.get('error') %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        {{ flash_message }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% for flash_message in app.session.flashBag.get('success') %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        {{ flash_message }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="card mt-4">
+            <div class="card-body">
+                {% if categories %}
+                    <a class="btn btn-outline-success" href="{{ path('add-feed') }}" role="button">Create new feed</a>
+                    <a class="btn btn-outline-primary" href="{{ path('add-category') }}" role="button">Create New Category</a>
+                {%  else %}
+                    <a class="btn btn-outline-primary" href="{{ path('add-category') }}" role="button">Create New Category</a>
+                    <hr />
+                    <p class="card-title">No feed existed</p>
+                {%  endif %}
+            </div>
+        </div>
+        {% if categories and feedList %}
+            {% for feed in feedList %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ feed.title }}</h4>
+                        <h5><a href="{{ feed.link | raw }}" target="_blank">{{ feed.link | raw }}</a></h5>
+                        <p class="card-text">
+                            {{ feed.description | raw }}
+                        </p>
+                        <span class="text-info">{{ categories[feed.category] }}</span>
+                        <hr />
+                        <p>
+                            <a class="btn btn-outline-warning" href="{{ path('edit-feed', {'id': feed.id}) }}" role="button"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                            <a class="btn btn-outline-danger" href="#" role="button" id="deleteFeedBtn"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                            <form action="{{ path('delete-feed', {'id': feed.id}) }}" method="post" id="deleteFeedForm" style="display:none">
+                                <input type="hidden" name="token" value="{{ csrf_token('delete-feed') }}" />
+                            </form>
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+            <br/>
+            {% if maxPages > 1 %}
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li class="page-item {{ thisPage == 1 ? 'disabled' }}">
+                            <a class="page-link" href="{{ path('view-category', {'page': 1, 'id': selectedId}) }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                        {% for i in 1..maxPages %}
+                            <li class="page-item {{ thisPage == i ? 'active' }}">
+                                <a class="page-link" href="{{ path('view-category', {'page': i, 'id': selectedId}) }}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                        <li class="page-item {{ thisPage == maxPages ? 'disabled' }}">
+                            <a class="page-link" href="{{ path('view-category', {'page': maxPages, 'id': selectedId}) }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            {% endif %}
+        {% endif %}
+        <!-- /.card -->
+    </div>
+    <!-- Delete Modal -->
+    <div class="modal fade" id="feedReaderModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <input type="hidden" id="deleteType" value="">
+                <div class="modal-body">
+                    Modal Body
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-info" data-dismiss="modal">Close</button>
+                    <a class="btn btn-outline-warning" role="button">Yes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    $('body').on('click','#deleteCategoryBtn', function() {
+        var feedReaderModal = $('#feedReaderModal');
+        feedReaderModal.find('.modal-title').html('Delete Category');
+        feedReaderModal.find('.modal-body').html('Are you sure want to delete this category ?');
+        feedReaderModal.find('#deleteType').val('category');
+        feedReaderModal.modal('show');
+    });
+
+    $('body').on('click','#deleteFeedBtn', function() {
+        var feedReaderModal = $('#feedReaderModal');
+        feedReaderModal.find('.modal-title').html('Delete Feed');
+        feedReaderModal.find('.modal-body').html('Are you sure want to delete this feed ?');
+        feedReaderModal.find('#deleteType').val('feed');
+        feedReaderModal.modal('show');
+    });
+
+    $('#feedReaderModal').on('show.bs.modal', function (e) {
+        var formId = '';
+        var deleteType = $(this).find('#deleteType').val();
+        switch(deleteType) {
+            case 'category':
+                formId = 'deleteCategoryForm';
+                break;
+            case 'feed':
+                formId = 'deleteFeedForm';
+                break;
+        }
+        $(this).find("a.btn").on("click", function(e) {
+            $('#' + formId).submit();
+        });
+    })
+{% endblock %}
